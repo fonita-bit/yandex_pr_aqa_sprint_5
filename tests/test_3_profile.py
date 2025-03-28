@@ -1,45 +1,41 @@
-from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from locators import Locators
+from urls import URLs
+import pytest
 
-def test_navigate_to_profile(driver):
-    """Тест перехода в личный кабинет"""
-    driver.get("https://stellarburgers.nomoreparties.site/login")
+class TestProfile:
+    """Тесты для личного кабинета"""
 
-    driver.find_element(*Locators.EMAIL_INPUT).send_keys("svetlanabratchenko19123@yandex.ru")
-    driver.find_element(*Locators.PASSWORD_INPUT).send_keys("password123")
-    driver.find_element(*Locators.LOGIN_BUTTON).click()
+    def test_navigate_to_profile(self, driver):
+        """Тест перехода в личный кабинет"""
+        driver.get(URLs.LOGIN_PAGE)
 
-    # Ждем успешного редиректа на главную страницу
-    WebDriverWait(driver, 10).until(EC.url_to_be("https://stellarburgers.nomoreparties.site/"))
+        driver.find_element(*Locators.EMAIL_INPUT).send_keys("svetlanabratchenko19123@yandex.ru")
+        driver.find_element(*Locators.PASSWORD_INPUT).send_keys("password123")
+        driver.find_element(*Locators.LOGIN_BUTTON).click()
 
-    driver.find_element(*Locators.PROFILE_BUTTON).click()
-    assert "/account" in driver.current_url
+        WebDriverWait(driver, 10).until(EC.url_to_be(URLs.MAIN_PAGE))
 
-def test_logout(driver):
-    """Тест выхода из аккаунта"""
-    driver.get("https://stellarburgers.nomoreparties.site/login")
+        driver.find_element(*Locators.PROFILE_BUTTON).click()
+        assert "/account" in driver.current_url
 
-    driver.find_element(*Locators.EMAIL_INPUT).send_keys("svetlanabratchenko19123@yandex.ru")
-    driver.find_element(*Locators.PASSWORD_INPUT).send_keys("password123")
-    driver.find_element(*Locators.LOGIN_BUTTON).click()
+    def test_logout(self, driver):
+        """Тест выхода из аккаунта"""
+        driver.get(URLs.LOGIN_PAGE)
 
-    # Ждем успешного редиректа на главную страницу
-    WebDriverWait(driver, 10).until(EC.url_to_be("https://stellarburgers.nomoreparties.site/"))
+        driver.find_element(*Locators.EMAIL_INPUT).send_keys("svetlanabratchenko19123@yandex.ru")
+        driver.find_element(*Locators.PASSWORD_INPUT).send_keys("password123")
+        driver.find_element(*Locators.LOGIN_BUTTON).click()
 
-    # Переход к профилю
-    driver.find_element(*Locators.PROFILE_BUTTON).click()
+        WebDriverWait(driver, 10).until(EC.url_to_be(URLs.MAIN_PAGE))
 
-    # Ожидание загрузки элемента "Выход"
-    logout_button = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Выход')]"))
-    )
+        driver.find_element(*Locators.PROFILE_BUTTON).click()
 
-    # Нажимаем кнопку выхода
-    logout_button.click()
-    # Ожидаем, что URL изменится на страницу логина
-    WebDriverWait(driver, 10).until(EC.url_to_be("https://stellarburgers.nomoreparties.site/login"))
+        logout_button = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable(Locators.LOGOUT_BUTTON)
+        )
+        logout_button.click()
 
-    # Проверяем редирект на страницу логина
-    assert driver.current_url == "https://stellarburgers.nomoreparties.site/login"
+        WebDriverWait(driver, 10).until(EC.url_to_be(URLs.LOGIN_PAGE))
+        assert driver.current_url == URLs.LOGIN_PAGE
