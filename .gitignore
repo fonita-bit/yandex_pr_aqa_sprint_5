@@ -178,3 +178,4 @@ __pycache__/
 
 chromedriver.exe
 geckodriver.exe
+connect_selenium_in_pycharm.py
